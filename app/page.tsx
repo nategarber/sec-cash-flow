@@ -67,7 +67,7 @@ export default function Home() {
             Statement of Cash Flows
           </h1>
           <p className="mt-3 text-zinc-400">
-            Enter a stock ticker to pull the most recent 10-K from SEC EDGAR and download it as Excel.
+            Enter a ticker or company name to pull the most recent 10-K from SEC EDGAR and download it as Excel.
           </p>
         </div>
 

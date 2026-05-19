@@ -88,3 +88,25 @@ export async function getMostRecent10K(cik: string): Promise<Filing> {
 export async function getCompanyFacts(cik: string) {
   return fetchJSON(`${EDGAR_BASE}/api/xbrl/companyfacts/CIK${cik}.json`);
 }
+
+export async function searchCompaniesByName(query: string): Promise<{ ticker: string; name: string }[]> {
+  const data = await fetchJSON("https://www.sec.gov/files/company_tickers.json");
+  const entries = Object.values(data) as { cik_str: number; ticker: string; title: string }[];
+  const lower = query.toLowerCase();
+
+  const scored: { ticker: string; name: string; score: number }[] = [];
+  for (const entry of entries) {
+    const nameLower = entry.title.toLowerCase();
+    const tickerLower = entry.ticker.toLowerCase();
+    let score = 0;
+    if (tickerLower === lower || nameLower === lower) score = 3;
+    else if (tickerLower.startsWith(lower) || nameLower.startsWith(lower)) score = 2;
+    else if (nameLower.includes(lower)) score = 1;
+    if (score > 0) scored.push({ ticker: entry.ticker, name: entry.title, score });
+  }
+
+  return scored
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8)
+    .map(({ ticker, name }) => ({ ticker, name }));
+}
